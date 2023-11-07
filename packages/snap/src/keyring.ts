@@ -56,9 +56,11 @@ export type Wallet = {
 
 export class SimpleKeyring implements Keyring {
   #state: KeyringState;
+  #signRunning: boolean;
 
   constructor(state: KeyringState) {
     this.#state = state;
+    this.#signRunning = false;
   }
 
   async listAccounts(): Promise<KeyringAccount[]> {
@@ -163,9 +165,20 @@ export class SimpleKeyring implements Keyring {
   }
 
   async submitRequest(request: KeyringRequest): Promise<SubmitRequestResponse> {
-    return this.#state.useSyncApprovals
+    if (this.#signRunning === true) {
+      throw new Error('Sign is already running');
+    }
+    this.#signRunning = true;
+    await Promise.all([
+      new Promise((resolve) => {
+        setTimeout(resolve, 10000);
+      }),
+    ]);
+    const result = this.#state.useSyncApprovals
       ? this.#syncSubmitRequest(request)
       : this.#asyncSubmitRequest(request);
+    this.#signRunning = false;
+    return result;
   }
 
   async approveRequest(id: string): Promise<void> {
