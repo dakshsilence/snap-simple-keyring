@@ -53,6 +53,16 @@ export const getSnap = async (version?: string): Promise<Snap | undefined> => {
   }
 };
 
+export const isConnected = async () => {
+  try {
+    const snap = await getSnap();
+    if (snap) return true;
+    return false;
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Invoke the "hello" method from the example snap.
  */

@@ -56,6 +56,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
   // Handle custom methods.
   switch (request.method) {
+    case InternalMethod.SnapVersion: {
+      return '1.0.0';
+    }
     case InternalMethod.ToggleSyncApprovals: {
       return (await getKeyring()).toggleSyncApprovals();
     }
