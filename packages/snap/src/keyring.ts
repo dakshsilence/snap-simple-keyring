@@ -29,6 +29,7 @@ import {
   emitSnapKeyringEvent,
 } from '@metamask/keyring-api';
 import { KeyringEvent } from '@metamask/keyring-api/dist/events';
+import { InvalidRequestError } from '@metamask/snaps-sdk';
 import { type Json, type JsonRpcRequest } from '@metamask/utils';
 import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
@@ -56,6 +57,7 @@ export type Wallet = {
 
 export class SimpleKeyring implements Keyring {
   #state: KeyringState;
+
   #signRunning: boolean;
 
   constructor(state: KeyringState) {
@@ -165,8 +167,8 @@ export class SimpleKeyring implements Keyring {
   }
 
   async submitRequest(request: KeyringRequest): Promise<SubmitRequestResponse> {
-    if (this.#signRunning === true) {
-      throw new Error('Sign is already running');
+    if (this.#signRunning) {
+      throw new InvalidRequestError('Sign is already running');
     }
     this.#signRunning = true;
     await Promise.all([
